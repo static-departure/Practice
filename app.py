@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, a
 from intasend import APIService
 import os
 import logging
+import time
 
 app = Flask(__name__)
 
@@ -60,18 +61,45 @@ def initiate_stk_push():
 
         # Log the response for debugging
         logging.info("STK Push response: %s", response)
-            if response.get("success") == "True":
-            # Redirect to the success page
-            return redirect(url_for('payment_success'))
-        else:
-            # Redirect to the failure page if status is not success
+
+        # Get the Tracking ID from the response
+        tracking_id = response.get("tracking_id")
+        if not tracking_id:
+            logging.error("Tracking ID not found in response")
             return redirect(url_for('payment_failure'))
 
+        # Redirect to the status-check route to periodically check for payment status
+        return redirect(url_for('check_payment_status', tracking_id=tracking_id))
+
     except Exception as e:
-        # Catch all exceptions and return an error message
+        logging.error("Error occurred: %s", str(e))
         return jsonify({"error": "An error occurred", "message": str(e)}), 500
 
-  
+# Route to check payment status
+@app.route('/payment/status/<tracking_id>')
+def check_payment_status(tracking_id):
+    try:
+        # Query the payment status using the tracking ID
+        for _ in range(5):  # Poll for status up to 5 times
+            status_response = service.collect.get_status(tracking_id=tracking_id)
+            logging.info("Payment status response: %s", status_response)
+
+            # Extract the status from the response
+            status = status_response.get("status")
+            if status == "completed":
+                return redirect(url_for('payment_success'))
+            elif status == "failed":
+                return redirect(url_for('payment_failure'))
+
+            # Wait for a few seconds before polling again
+            time.sleep(5)
+
+        # If after polling the status isn't successful or failed, return failure
+        return redirect(url_for('payment_failure'))
+
+    except Exception as e:
+        logging.error("Error while checking payment status: %s", str(e))
+        return jsonify({"error": "An error occurred while checking the payment status", "message": str(e)}), 500
 
 # Success route after payment is complete
 @app.route('/payment/success')
@@ -85,4 +113,3 @@ def payment_failure():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=True)  # Keep debug=True for testing
-
