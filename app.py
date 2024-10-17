@@ -62,16 +62,19 @@ def initiate_stk_push():
         logging.info("STK Push response: %s", response)
 
         # Check the response from IntaSend for the correct success indicator
-        if response.get("success") == True:  # Ensure this is the correct key from the API response
-            return redirect(url_for('payment_success'))
-        else:
-            # Log failure reason for debugging
-            logging.warning("Payment failure: %s", response)
-            return redirect(url_for('payment_failure'))
+  try:
+    # Assuming 'response' is obtained from IntaSend API call
+    # Check the response from IntaSend for the correct success indicator
+    if response.get("success") == True:  # Adjusted to check for "success" key
+        return redirect(url_for('payment_success'))
+    else:
+        # Log failure reason for debugging
+        logging.warning("Payment failure: %s", response)
+        return redirect(url_for('payment_failure'))
 
-    except Exception as e:
-        logging.error("Error occurred: %s", str(e))
-        return jsonify({"error": "An error occurred", "message": str(e)}), 500
+except Exception as e:
+    logging.error("Error occurred: %s", str(e))
+    return jsonify({"error": "An error occurred", "message": str(e)}), 500
 
 # Success route after payment is complete
 @app.route('/payment/success')
