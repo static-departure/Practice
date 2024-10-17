@@ -61,11 +61,15 @@ def initiate_stk_push():
         # Log the response for debugging
         logging.info("STK Push response: %s", response)
 
-        # Check for success in response
+        # Check for success in response and get transaction ID
         if response.get("success") == True:  # Ensure this checks for boolean True
-            transaction_id = response.get("transaction_id")  # Adjust based on actual response structure
+            transaction_id = response.get("transaction_id")  # Get transaction ID
             
-            # Check transaction status (hypothetical function)
+            if not transaction_id:
+                logging.warning("Transaction ID is missing in response: %s", response)
+                return redirect(url_for('payment_failure'))
+
+            # Check transaction status using the transaction ID
             status_response = service.collect.check_transaction_status(transaction_id)
             logging.info("Transaction status response: %s", status_response)
 
