@@ -72,7 +72,7 @@
 </head>
 <body>
     <h1>Enter Payment Details</h1>
-    <form action="https://payment.intasend.com/checkout" method="POST" id="paymentForm">
+    <form action="/pay" method="POST" id="paymentForm">
         <label for="phone_number">Phone Number (e.g. 254712345678):</label>
         <input type="text" id="phone_number" name="phone_number" required placeholder="e.g. 254712345678">
 
@@ -83,7 +83,7 @@
         <input type="email" id="email" name="email" required placeholder="you@example.com">
 
         <!-- Add success and failure redirect URLs -->
-        <input type="hidden" name="success_url" value="https://scan-social-timeee.onrender.com" />
+        <input type="hidden" name="success_url" value="https://your-shop-url.com?status=success" />
         <input type="hidden" name="failure_url" value="https://your-shop-url.com?status=failure" />
 
         <button type="submit">Submit</button>
@@ -104,8 +104,8 @@
 
             // Simulate successful submission
             alert(`Payment of KES ${amount} will be processed for phone number ${phoneNumber}.`);
-            
-            // Normally, here you'd submit the form data to the server:
+
+            // Now submit the form data to the server:
             this.submit();
         });
     </script>
