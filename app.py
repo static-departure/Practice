@@ -62,7 +62,7 @@ def initiate_stk_push():
         logging.info("STK Push response: %s", response)
 
         # Check the response from IntaSend for the correct success indicator
-        if response.get("state") == True:  # Ensure this is the correct key from the API response
+        if response.get("success") == True:  # Ensure this is the correct key from the API response
             return redirect(url_for('payment_success'))
         else:
             # Log failure reason for debugging
