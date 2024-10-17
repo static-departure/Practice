@@ -72,7 +72,7 @@
 </head>
 <body>
     <h1>Enter Payment Details</h1>
-    <form action="https://sandbox.intasend.com/checkout" method="POST" id="paymentForm">
+    <form action="/pay" method="POST" id="paymentForm">
         <label for="phone_number">Phone Number (e.g. 254712345678):</label>
         <input type="text" id="phone_number" name="phone_number" required placeholder="e.g. 254712345678">
 
@@ -82,31 +82,23 @@
         <label for="email">Email:</label>
         <input type="email" id="email" name="email" required placeholder="you@example.com">
 
-        <!-- Add success and failure redirect URLs -->
-        <input type="hidden" name="success_url" value="https://your-success-url.com" />
-        <input type="hidden" name="failure_url" value="https://your-failure-url.com" />
-
         <button type="submit">Submit</button>
     </form>
 
     <script>
         document.getElementById('paymentForm').addEventListener('submit', function(event) {
-            // Remove this line to allow actual submission
-            event.preventDefault(); // Prevent default form submission
-
             const phoneNumber = document.getElementById('phone_number').value;
             const amount = document.getElementById('amount').value;
 
             // Simple validation
             if (phoneNumber.length !== 12 || isNaN(amount) || amount <= 0) {
                 alert('Please enter valid payment details.');
+                event.preventDefault(); // Prevent form submission
                 return; // Stop form submission
             }
-
-            // If validation passes, submit the form
-            this.submit();
         });
     </script>
 </body>
 </html>
+
 
