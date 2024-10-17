@@ -8,8 +8,8 @@ app = Flask(__name__)
 TOKEN = os.getenv("INTASEND_API_TOKEN")  # Set your API token in the environment
 PUBLISHABLE_KEY = os.getenv("INTASEND_PUBLISHABLE_KEY")  # Set your publishable key in the environment
 
-# Initialize the IntaSend APIService
-service = APIService(token=TOKEN, publishable_key=PUBLISHABLE_KEY)
+# Initialize the IntaSend APIService for testing
+service = APIService(token=TOKEN, publishable_key=PUBLISHABLE_KEY, test=True)  # Add test=True for testing
 
 # Route to display the shop page
 @app.route('/')
@@ -20,7 +20,6 @@ def Shop():
 @app.route('/payment_form')
 def payment_form():
     return render_template('payment_form.html')
-
 
 # Route to handle form submission and initiate STK push
 @app.route('/pay', methods=['POST'])
@@ -63,4 +62,5 @@ def payment_failure():
     return render_template('failure.html', message="Payment Failed. Please try again or contact support.")
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=True)
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=True)  # Keep debug=True for testing
+
