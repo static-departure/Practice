@@ -60,18 +60,20 @@ def initiate_stk_push():
 
         # Log the response for debugging
         logging.info("STK Push response: %s", response)
-            if response.get("success") == True:
-            # Redirect to the success page
+
+        # Check for success in response (adjusted based on actual IntaSend response structure)
+        if response.get("success") == True:  # Ensure this checks for boolean True
+            # Redirect to the success page if status is success
             return redirect(url_for('payment_success'))
         else:
-            # Redirect to the failure page if status is not success
+            # Log failure reason for debugging
+            logging.warning("Payment failure: %s", response)
             return redirect(url_for('payment_failure'))
 
     except Exception as e:
         # Catch all exceptions and return an error message
+        logging.error("Error occurred during payment processing: %s", str(e))
         return jsonify({"error": "An error occurred", "message": str(e)}), 500
-
-  
 
 # Success route after payment is complete
 @app.route('/payment/success')
@@ -85,4 +87,3 @@ def payment_failure():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=True)  # Keep debug=True for testing
-
