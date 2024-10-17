@@ -75,7 +75,7 @@ def initiate_stk_push():
                 logging.warning("Payment failure after transaction check: %s", status_response)
                 return redirect(url_for('payment_failure'))
         else:
-            logging.warning("Payment failure: %s", response)
+            logging.warning("Payment failure from STK Push: %s", response)
             return redirect(url_for('payment_failure'))
 
     except Exception as e:
