@@ -18,7 +18,7 @@ service = APIService(token=TOKEN, publishable_key=PUBLISHABLE_KEY, test=True)  #
 # Route to display the shop page
 @app.route('/')
 def Shop():
-    return render_template('Shop.html') 
+    return render_template('Shop.html')
 
 # Route to display the payment form
 @app.route('/payment_form')
@@ -61,11 +61,12 @@ def initiate_stk_push():
         # Log the response for debugging
         logging.info("STK Push response: %s", response)
 
-        # Check the response from IntaSend
-        if response.get("status") == "success":
+        # Check the response from IntaSend for the correct success indicator
+        if response.get("state") == "Success":  # Ensure this is the correct key from the API response
             return redirect(url_for('payment_success'))
         else:
-            # Redirect to the failure page if status is not success
+            # Log failure reason for debugging
+            logging.warning("Payment failure: %s", response)
             return redirect(url_for('payment_failure'))
 
     except Exception as e:
@@ -84,3 +85,4 @@ def payment_failure():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=True)  # Keep debug=True for testing
+
