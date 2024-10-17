@@ -61,17 +61,24 @@ def initiate_stk_push():
         # Log the response for debugging
         logging.info("STK Push response: %s", response)
 
-        # Check for success in response (adjusted based on actual IntaSend response structure)
+        # Check for success in response
         if response.get("success") == True:  # Ensure this checks for boolean True
-            # Redirect to the success page if status is success
-            return redirect(url_for('payment_success'))
+            transaction_id = response.get("transaction_id")  # Adjust based on actual response structure
+            
+            # Check transaction status (hypothetical function)
+            status_response = service.collect.check_transaction_status(transaction_id)
+            logging.info("Transaction status response: %s", status_response)
+
+            if status_response.get("success") == True:
+                return redirect(url_for('payment_success'))
+            else:
+                logging.warning("Payment failure after transaction check: %s", status_response)
+                return redirect(url_for('payment_failure'))
         else:
-            # Log failure reason for debugging
             logging.warning("Payment failure: %s", response)
             return redirect(url_for('payment_failure'))
 
     except Exception as e:
-        # Catch all exceptions and return an error message
         logging.error("Error occurred during payment processing: %s", str(e))
         return jsonify({"error": "An error occurred", "message": str(e)}), 500
 
