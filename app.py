@@ -76,8 +76,20 @@ def initiate_stk_push():
                 logging.warning("Transaction ID is missing in response: %s", response)
                 return redirect(url_for('failure'))
 
-            # Redirect to the pending page, pass transaction_id to check status later
-            return redirect(url_for('pending', transaction_id=transaction_id))
+            # Now, let's check the status of the transaction
+            status_response = service.collect.check_transaction_status(transaction_id)
+            logging.info(f"Initial transaction status response: {status_response}")
+            transaction_state = status_response.get('state')
+
+            # If the state is 'PENDING', redirect to the pending page
+            if transaction_state == 'PENDING':
+                return redirect(url_for('pending', transaction_id=transaction_id))
+            elif transaction_state == 'COMPLETE':
+                return redirect(url_for('success'))
+            else:
+                # Any other state is considered a failure
+                logging.warning(f"Transaction state unexpected: {transaction_state}")
+                return redirect(url_for('failure'))
 
         else:
             logging.warning(f"STK Push failed: {response}")
@@ -87,13 +99,13 @@ def initiate_stk_push():
         logging.error(f"Error occurred during payment processing: {str(e)}")
         return jsonify({"error": "An error occurred", "message": str(e)}), 500
 
-# New Pending page that checks the transaction status periodically
+# Pending page that checks the transaction status periodically
 @app.route('/pending/<transaction_id>')
 def pending(transaction_id):
     try:
         # Check transaction status using the transaction ID
         status_response = service.collect.check_transaction_status(transaction_id)
-        logging.info(f"Transaction status response: {status_response}")
+        logging.info(f"Transaction status response in pending: {status_response}")
 
         if status_response.get("success") == True:
             transaction_state = status_response.get('state')
