@@ -70,8 +70,8 @@ def initiate_stk_push():
         logging.info(f"STK Push response: {response}")
 
         # Check if the STK Push was successful
-        if response.get("success") == True:  # Ensure this checks for boolean True
-            transaction_id = response.get("transaction_id")  # Get transaction ID
+        if response.get("success") == True:
+            transaction_id = response.get("transaction_id")
             logging.info(f"Transaction ID: {transaction_id}")
 
             if not transaction_id:
@@ -79,13 +79,17 @@ def initiate_stk_push():
                 return redirect(url_for('failure'))
 
             # Check transaction status using the transaction ID
-            logging.info(f"Checking transaction status for ID: {transaction_id}")
             status_response = service.collect.check_transaction_status(transaction_id)
             logging.info(f"Transaction status response: {status_response}")
 
+            # Handle various transaction states
             if status_response.get("success") == True:
-                logging.info("Payment was successful.")
-                return redirect(url_for('success'))
+                if status_response.get('state') == 'PENDING':
+                    # Inform the user that the payment is pending and awaiting confirmation
+                    return render_template('pending.html', message="Payment is pending. Please check your phone to confirm the transaction.")
+                else:
+                    logging.info("Payment was successful.")
+                    return redirect(url_for('success'))
             else:
                 logging.warning(f"Transaction failed: {status_response}")
                 return redirect(url_for('failure'))
@@ -106,6 +110,11 @@ def success():
 @app.route('/failure')
 def failure():
     return render_template('failure.html', message="Payment Failed. Please try again or contact support.")
+
+# Pending route in case the payment is awaiting confirmation
+@app.route('/pending')
+def pending():
+    return render_template('pending.html', message="Payment is pending. Please check your phone to confirm the transaction.")
 
 if __name__ == '__main__':
     # Check if PORT environment variable is set, default to 5000
