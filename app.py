@@ -12,11 +12,8 @@ logging.basicConfig(level=logging.INFO)
 TOKEN = os.getenv("INTASEND_API_TOKEN")
 PUBLISHABLE_KEY = os.getenv("INTASEND_PUBLISHABLE_KEY")
 
-if not TOKEN or not PUBLISHABLE_KEY:
-    logging.error("API token or Publishable key not found in environment variables.")
-
 # Initialize the IntaSend APIService
-service = APIService(token=TOKEN, publishable_key=PUBLISHABLE_KEY, test=True)
+service = APIService(token=TOKEN, publishable_key=PUBLISHABLE_KEY, test=True)  # test=True for testing
 
 # Route to display the shop page
 @app.route('/')
@@ -64,8 +61,8 @@ def initiate_stk_push():
             narrative=narrative
         )
 
-        # Log the STK Push response
-        logging.info(f"STK Push response: {response}")
+        # Log the STK Push response in detail
+        logging.info(f"Full STK Push response: {response}")
 
         # Check if the STK Push was successful
         if response.get("success") == True:
@@ -74,73 +71,51 @@ def initiate_stk_push():
 
             if not transaction_id:
                 logging.warning("Transaction ID is missing in response: %s", response)
-                return redirect(url_for('failure'))
+                return redirect(url_for('payment_failure'))
 
             # Now, let's check the status of the transaction
             status_response = service.collect.check_transaction_status(transaction_id)
             logging.info(f"Initial transaction status response: {status_response}")
             transaction_state = status_response.get('state')
 
-            # If the state is 'PENDING', redirect to the pending page
+            # Log the exact transaction state for better debugging
+            logging.info(f"Transaction State: {transaction_state}")
+
+            # Handle based on transaction state
             if transaction_state == 'PENDING':
+                logging.info(f"Transaction is still pending for transaction ID: {transaction_id}")
                 return redirect(url_for('pending', transaction_id=transaction_id))
             elif transaction_state == 'COMPLETE':
-                return redirect(url_for('success'))
+                logging.info(f"Transaction is complete for transaction ID: {transaction_id}")
+                return redirect(url_for('payment_success'))
             else:
-                # Any other state is considered a failure
                 logging.warning(f"Transaction state unexpected: {transaction_state}")
-                return redirect(url_for('failure'))
+                return redirect(url_for('payment_failure'))
 
         else:
+            # Handle non-success cases appropriately
             logging.warning(f"STK Push failed: {response}")
-            return redirect(url_for('failure'))
+            return redirect(url_for('payment_failure'))
 
     except Exception as e:
         logging.error(f"Error occurred during payment processing: {str(e)}")
         return jsonify({"error": "An error occurred", "message": str(e)}), 500
 
-# Pending page that checks the transaction status periodically
+# Route for pending transactions
 @app.route('/pending/<transaction_id>')
 def pending(transaction_id):
-    try:
-        # Check transaction status using the transaction ID
-        status_response = service.collect.check_transaction_status(transaction_id)
-        logging.info(f"Transaction status response in pending: {status_response}")
-
-        if status_response.get("success") == True:
-            transaction_state = status_response.get('state')
-            logging.info(f"Transaction state: {transaction_state}")
-
-            if transaction_state == 'PENDING':
-                # Keep the user on the pending page if the transaction is still pending
-                return render_template('pending.html', message="Payment is pending. Please check your phone to confirm the transaction.")
-            elif transaction_state == 'COMPLETE':
-                # Redirect to success if the payment is completed
-                return redirect(url_for('success'))
-            else:
-                # Handle other cases (e.g., failed transaction)
-                logging.warning(f"Unexpected transaction state: {transaction_state}")
-                return redirect(url_for('failure'))
-        else:
-            logging.warning(f"Transaction status check failed: {status_response}")
-            return redirect(url_for('failure'))
-
-    except Exception as e:
-        logging.error(f"Error occurred during status check: {str(e)}")
-        return jsonify({"error": "An error occurred", "message": str(e)}), 500
+    # You can implement this page to show a waiting message and periodically check the status
+    return render_template('pending.html', transaction_id=transaction_id)
 
 # Success route after payment is complete
-@app.route('/success')
-def success():
+@app.route('/payment/success')
+def payment_success():
     return render_template('success.html', message="Payment Successful! Thank you for your purchase.")
 
 # Failure route in case of payment failure
-@app.route('/failure')
-def failure():
+@app.route('/payment/failure')
+def payment_failure():
     return render_template('failure.html', message="Payment Failed. Please try again or contact support.")
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    logging.info(f"Starting the app on port {port}")
-    app.run(host='0.0.0.0', port=port, debug=True)
-
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=True)  # Keep debug=True for testing
