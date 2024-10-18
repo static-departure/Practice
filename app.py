@@ -9,15 +9,14 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 
 # Set your API token and publishable key as environment variables
-TOKEN = os.getenv("INTASEND_API_TOKEN")  # Set your API token in the environment
-PUBLISHABLE_KEY = os.getenv("INTASEND_PUBLISHABLE_KEY")  # Set your publishable key in the environment
+TOKEN = os.getenv("INTASEND_API_TOKEN")
+PUBLISHABLE_KEY = os.getenv("INTASEND_PUBLISHABLE_KEY")
 
-# Log if tokens are not properly loaded
 if not TOKEN or not PUBLISHABLE_KEY:
     logging.error("API token or Publishable key not found in environment variables.")
 
 # Initialize the IntaSend APIService
-service = APIService(token=TOKEN, publishable_key=PUBLISHABLE_KEY, test=True)  # test=True for testing
+service = APIService(token=TOKEN, publishable_key=PUBLISHABLE_KEY, test=True)
 
 # Route to display the shop page
 @app.route('/')
@@ -31,7 +30,6 @@ def payment_form():
 
 # Function to validate email format
 def validate_email(email):
-    # Simple email validation logic
     import re
     return re.match(r"[^@]+@[^@]+\.[^@]+", email)
 
@@ -42,7 +40,7 @@ def initiate_stk_push():
         # Collect data from the form
         phone_number = request.form['phone_number']
         email = request.form['email']
-        amount = float(request.form['amount'])  # Convert amount to float
+        amount = float(request.form['amount'])
 
         # Input validation
         if not phone_number.isdigit() or len(phone_number) < 10:
@@ -55,9 +53,9 @@ def initiate_stk_push():
             logging.warning("Invalid email address: %s", email)
             abort(400, description="Invalid email address.")
 
-        narrative = "Purchase"  # Set the narrative for the transaction
+        narrative = "Purchase"
 
-        # Prepare and send the STK Push request using IntaSend
+        # Send the STK Push request using IntaSend
         logging.info(f"Initiating STK Push for phone: {phone_number}, email: {email}, amount: {amount}")
         response = service.collect.mpesa_stk_push(
             phone_number=phone_number,
@@ -66,7 +64,7 @@ def initiate_stk_push():
             narrative=narrative
         )
 
-        # Log the STK Push response for debugging
+        # Log the STK Push response
         logging.info(f"STK Push response: {response}")
 
         # Check if the STK Push was successful
@@ -78,27 +76,45 @@ def initiate_stk_push():
                 logging.warning("Transaction ID is missing in response: %s", response)
                 return redirect(url_for('failure'))
 
-            # Check transaction status using the transaction ID
-            status_response = service.collect.check_transaction_status(transaction_id)
-            logging.info(f"Transaction status response: {status_response}")
+            # Redirect to the pending page, pass transaction_id to check status later
+            return redirect(url_for('pending', transaction_id=transaction_id))
 
-            # Handle various transaction states
-            if status_response.get("success") == True:
-                if status_response.get('state') == 'PENDING':
-                    # Inform the user that the payment is pending and awaiting confirmation
-                    return render_template('pending.html', message="Payment is pending. Please check your phone to confirm the transaction.")
-                else:
-                    logging.info("Payment was successful.")
-                    return redirect(url_for('success'))
-            else:
-                logging.warning(f"Transaction failed: {status_response}")
-                return redirect(url_for('failure'))
         else:
             logging.warning(f"STK Push failed: {response}")
             return redirect(url_for('failure'))
 
     except Exception as e:
         logging.error(f"Error occurred during payment processing: {str(e)}")
+        return jsonify({"error": "An error occurred", "message": str(e)}), 500
+
+# New Pending page that checks the transaction status periodically
+@app.route('/pending/<transaction_id>')
+def pending(transaction_id):
+    try:
+        # Check transaction status using the transaction ID
+        status_response = service.collect.check_transaction_status(transaction_id)
+        logging.info(f"Transaction status response: {status_response}")
+
+        if status_response.get("success") == True:
+            transaction_state = status_response.get('state')
+            logging.info(f"Transaction state: {transaction_state}")
+
+            if transaction_state == 'PENDING':
+                # Keep the user on the pending page if the transaction is still pending
+                return render_template('pending.html', message="Payment is pending. Please check your phone to confirm the transaction.")
+            elif transaction_state == 'COMPLETE':
+                # Redirect to success if the payment is completed
+                return redirect(url_for('success'))
+            else:
+                # Handle other cases (e.g., failed transaction)
+                logging.warning(f"Unexpected transaction state: {transaction_state}")
+                return redirect(url_for('failure'))
+        else:
+            logging.warning(f"Transaction status check failed: {status_response}")
+            return redirect(url_for('failure'))
+
+    except Exception as e:
+        logging.error(f"Error occurred during status check: {str(e)}")
         return jsonify({"error": "An error occurred", "message": str(e)}), 500
 
 # Success route after payment is complete
@@ -111,14 +127,8 @@ def success():
 def failure():
     return render_template('failure.html', message="Payment Failed. Please try again or contact support.")
 
-# Pending route in case the payment is awaiting confirmation
-@app.route('/pending')
-def pending():
-    return render_template('pending.html', message="Payment is pending. Please check your phone to confirm the transaction.")
-
 if __name__ == '__main__':
-    # Check if PORT environment variable is set, default to 5000
     port = int(os.environ.get("PORT", 5000))
     logging.info(f"Starting the app on port {port}")
-    
-    app.run(host='0.0.0.0', port=port, debug=True)  # Keep debug=True for testing
+    app.run(host='0.0.0.0', port=port, debug=True)
+
