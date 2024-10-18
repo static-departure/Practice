@@ -64,36 +64,36 @@ def initiate_stk_push():
         # Check for success in response and get transaction ID
         if response.get("success") == True:  # Ensure this checks for boolean True
             transaction_id = response.get("transaction_id")  # Get transaction ID
-            
+
             if not transaction_id:
                 logging.warning("Transaction ID is missing in response: %s", response)
-                return redirect(url_for('payment_failure'))
+                return redirect(url_for('failure'))
 
             # Check transaction status using the transaction ID
             status_response = service.collect.check_transaction_status(transaction_id)
             logging.info("Transaction status response: %s", status_response)
 
             if status_response.get("success") == True:
-                return redirect(url_for('payment_success'))
+                return redirect(url_for('success'))
             else:
                 logging.warning("Payment failure after transaction check: %s", status_response)
-                return redirect(url_for('payment_failure'))
+                return redirect(url_for('failure'))
         else:
             logging.warning("Payment failure from STK Push: %s", response)
-            return redirect(url_for('payment_failure'))
+            return redirect(url_for('failure'))
 
     except Exception as e:
         logging.error("Error occurred during payment processing: %s", str(e))
         return jsonify({"error": "An error occurred", "message": str(e)}), 500
 
 # Success route after payment is complete
-@app.route('/payment/success')
-def payment_success():
+@app.route('/success')
+def success():
     return render_template('success.html', message="Payment Successful! Thank you for your purchase.")
 
 # Failure route in case of payment failure
-@app.route('/payment/failure')
-def payment_failure():
+@app.route('/failure')
+def failure():
     return render_template('failure.html', message="Payment Failed. Please try again or contact support.")
 
 if __name__ == '__main__':
