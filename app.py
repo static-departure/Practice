@@ -84,7 +84,7 @@ def initiate_stk_push():
 
             if transaction_state == 'PENDING':
                 logging.info(f"Transaction is pending for transaction ID: {transaction_id}")
-                return redirect(url_for('pending', transaction_id=transaction_id))
+                return redirect(url_for('pay_pending', transaction_id=transaction_id))
             elif transaction_state == 'COMPLETE':
                 logging.info(f"Transaction is complete for transaction ID: {transaction_id}")
                 return redirect(url_for('payment_success'))
@@ -102,18 +102,18 @@ def initiate_stk_push():
         return jsonify({"error": "An error occurred", "message": str(e)}), 500
 
 # Pending route when payment is awaiting action (e.g., PIN input)
-@app.route('/payment/pending')
-def pending():
+@app.route('/pay/pending')
+def pay_pending():
     transaction_id = request.args.get('transaction_id')
     return render_template('pending.html', message="Payment is Pending. Please complete the transaction.", transaction_id=transaction_id)
 
 # Success route after payment is complete
-@app.route('/payment/success')
+@app.route('/pay/success')
 def payment_success():
     return render_template('success.html', message="Payment Successful! Thank you for your purchase.")
 
 # Failure route in case of payment failure
-@app.route('/payment/failure')
+@app.route('/pay/failure')
 def payment_failure():
     return render_template('failure.html', message="Payment Failed. Please try again or contact support.")
 
