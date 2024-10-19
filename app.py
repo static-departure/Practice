@@ -17,7 +17,7 @@ service = APIService(token=TOKEN, publishable_key=PUBLISHABLE_KEY, test=True)  #
 
 # Route to display the shop page
 @app.route('/')
-def Shop():
+def shop():
     return render_template('Shop.html')
 
 # Route to display the payment form
@@ -37,7 +37,7 @@ def initiate_stk_push():
         # Collect data from the form
         phone_number = request.form['phone_number']
         email = request.form['email']
-        amount = float(request.form['amount'])
+        amount = float(request.form['amount'])  # Convert amount to float
 
         # Input validation
         if not phone_number.isdigit() or len(phone_number) < 10:
@@ -61,7 +61,7 @@ def initiate_stk_push():
             narrative=narrative
         )
 
-        # Log the STK Push response in detail
+        # Log the STK Push response
         logging.info(f"Full STK Push response: {response}")
 
         # Check if the STK Push was successful
@@ -73,27 +73,27 @@ def initiate_stk_push():
                 logging.warning("Transaction ID is missing in response: %s", response)
                 return redirect(url_for('payment_failure'))
 
-            # Now, let's check the status of the transaction
+            # Check the status of the transaction
             status_response = service.collect.check_transaction_status(transaction_id)
-            logging.info(f"Initial transaction status response: {status_response}")
+            logging.info(f"Transaction status response: {status_response}")
+
             transaction_state = status_response.get('state')
+            success_flag = status_response.get("success")
 
-            # Log the exact transaction state for better debugging
-            logging.info(f"Transaction State: {transaction_state}")
+            logging.info(f"Transaction State: {transaction_state}, Success: {success_flag}")
 
-            # Handle based on transaction state
             if transaction_state == 'PENDING':
-                logging.info(f"Transaction is still pending for transaction ID: {transaction_id}")
+                logging.info(f"Transaction is pending for transaction ID: {transaction_id}")
                 return redirect(url_for('pending', transaction_id=transaction_id))
             elif transaction_state == 'COMPLETE':
                 logging.info(f"Transaction is complete for transaction ID: {transaction_id}")
                 return redirect(url_for('payment_success'))
             else:
-                logging.warning(f"Transaction state unexpected: {transaction_state}")
+                logging.warning(f"Transaction failed or unknown state: {transaction_state}")
                 return redirect(url_for('payment_failure'))
 
         else:
-            # Handle non-success cases appropriately
+            # Log and handle failures in STK push initiation
             logging.warning(f"STK Push failed: {response}")
             return redirect(url_for('payment_failure'))
 
@@ -101,11 +101,11 @@ def initiate_stk_push():
         logging.error(f"Error occurred during payment processing: {str(e)}")
         return jsonify({"error": "An error occurred", "message": str(e)}), 500
 
-# Route for pending transactions
-@app.route('/pending/<transaction_id>')
-def pending(transaction_id):
-    # You can implement this page to show a waiting message and periodically check the status
-    return render_template('pending.html', transaction_id=transaction_id)
+# Pending route when payment is awaiting action (e.g., PIN input)
+@app.route('/payment/pending')
+def pending():
+    transaction_id = request.args.get('transaction_id')
+    return render_template('pending.html', message="Payment is Pending. Please complete the transaction.", transaction_id=transaction_id)
 
 # Success route after payment is complete
 @app.route('/payment/success')
