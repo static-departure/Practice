@@ -10,15 +10,15 @@ logging.basicConfig(level=logging.INFO)
 
 # Set your API token and publishable key as environment variables
 TOKEN = os.getenv("INTASEND_API_TOKEN")
-PUBLISHABLE_KEY = os.getenv("INTASEND_PUBLISHABLE_KEY")
+PUBLISHABLE_KEY = os.getenv("PUBLISHABLE_KEY")
 
 # Initialize the IntaSend APIService
-service = APIService(token=TOKEN, publishable_key=PUBLISHABLE_KEY, test=True)  # test=True for testing
+service = APIService(token=TOKEN, publishable_key=PUBLISHABLE_KEY, test=True)
 
 # Route to display the shop page
 @app.route('/')
 def shop():
-    return render_template('shop.html')
+    return render_template('Shop.html')
 
 # Route to display the payment form
 @app.route('/payment_form')
@@ -36,9 +36,8 @@ def initiate_stk_push():
     try:
         phone_number = request.form['phone_number']
         email = request.form['email']
-        amount = float(request.form['amount'])  # Convert amount to float
+        amount = float(request.form['amount'])
 
-        # Input validation
         if not phone_number.isdigit() or len(phone_number) < 10:
             logging.warning("Invalid phone number: %s", phone_number)
             abort(400, description="Invalid phone number.")
@@ -50,9 +49,8 @@ def initiate_stk_push():
             abort(400, description="Invalid email address.")
 
         narrative = "Purchase"
-        logging.info(f"Initiating STK Push for phone: {phone_number}, email: {email}, amount: {amount}")
 
-        # Send the STK Push request using IntaSend
+        logging.info(f"Initiating STK Push for phone: {phone_number}, email: {email}, amount: {amount}")
         response = service.collect.mpesa_stk_push(
             phone_number=phone_number,
             email=email,
@@ -60,17 +58,15 @@ def initiate_stk_push():
             narrative=narrative
         )
 
-        # Log the STK Push response in detail
         logging.info(f"Full STK Push response: {response}")
 
-        # Check if the STK Push was successful
-        if response.get("success"):
+        if response.get("success") == True:
             transaction_id = response.get("transaction_id")
             logging.info(f"Transaction ID: {transaction_id}")
 
             if not transaction_id:
                 logging.warning("Transaction ID is missing in response: %s", response)
-                return redirect(url_for('payment_failure'))
+                return redirect(url_for('failure'))
 
             status_response = service.collect.check_transaction_status(transaction_id)
             logging.info(f"Transaction status response: {status_response}")
@@ -82,16 +78,17 @@ def initiate_stk_push():
 
             if transaction_state == 'PENDING':
                 logging.info(f"Transaction is pending for transaction ID: {transaction_id}")
-                return redirect(url_for('pay_pending', transaction_id=transaction_id))
+                return redirect(url_for('pending', transaction_id=transaction_id))
             elif transaction_state == 'COMPLETE':
                 logging.info(f"Transaction is complete for transaction ID: {transaction_id}")
-                return redirect(url_for('payment_success'))
+                return redirect(url_for('success'))
             else:
-                logging.warning(f"Transaction failed or unknown state: {transaction_state}, response: {status_response}")
-                return redirect(url_for('payment_failure'))
+                logging.warning(f"Transaction failed or unknown state: {transaction_state}")
+                return redirect(url_for('failure'))
+
         else:
-            logging.warning(f"STK Push failed. Full response: {response}")
-            return redirect(url_for('payment_failure'))
+            logging.warning(f"STK Push failed: {response}")
+            return redirect(url_for('failure'))
 
     except Exception as e:
         logging.error(f"Error occurred during payment processing: {str(e)}")
@@ -99,19 +96,19 @@ def initiate_stk_push():
 
 # Pending route when payment is awaiting action (e.g., PIN input)
 @app.route('/pay/pending')
-def pay_pending():
+def pending():
     transaction_id = request.args.get('transaction_id')
     return render_template('pending.html', message="Payment is Pending. Please complete the transaction.", transaction_id=transaction_id)
 
 # Success route after payment is complete
 @app.route('/pay/success')
-def payment_success():
+def success():
     return render_template('success.html', message="Payment Successful! Thank you for your purchase.")
 
 # Failure route in case of payment failure
 @app.route('/pay/failure')
-def payment_failure():
+def failure():
     return render_template('failure.html', message="Payment Failed. Please try again or contact support.")
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=True)  # Keep debug=True for testing
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=True)
