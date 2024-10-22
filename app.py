@@ -89,15 +89,17 @@ def initiate_stk_push():
                 logging.info(f"Transaction is complete for transaction ID: {transaction_id}")
                 return redirect(url_for('payment_success'))
             else:
-                logging.warning(f"Transaction failed or unknown state: {transaction_state}")
+                # Log any unrecognized or failed transaction states
+                logging.warning(f"Transaction failed or unknown state: {transaction_state}, response: {status_response}")
                 return redirect(url_for('payment_failure'))
 
         else:
             # Log and handle failures in STK push initiation
-            logging.warning(f"STK Push failed: {response}")
+            logging.warning(f"STK Push failed. Full response: {response}")
             return redirect(url_for('payment_failure'))
 
     except Exception as e:
+        # Log the exact exception for easier debugging
         logging.error(f"Error occurred during payment processing: {str(e)}")
         return jsonify({"error": "An error occurred", "message": str(e)}), 500
 
