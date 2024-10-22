@@ -1,8 +1,6 @@
 <html>
  <head>
-  <title>
-   Shop
-  </title>
+  <title>Shop</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>  
   <style>
    body {
@@ -18,12 +16,6 @@
             padding: 20px;
             background-color: #f0f0f0;
         }
-        .header div {
-            width: 50px;
-            height: 10px;
-            background-color: #d3d3d3;
-            margin: 0 5px;
-        }
         .shop-details {
             display: flex;
             justify-content: space-between;
@@ -31,6 +23,7 @@
             padding: 10px 20px;
             background-color: #f8f8f8;
             font-size: 14px;
+            flex-wrap: wrap;
         }
         .shop-details div {
             margin-right: 20px;
@@ -95,12 +88,6 @@
             padding: 20px;
             text-align: center;
         }
-        .footer div {
-            width: 100px;
-            height: 20px;
-            background-color: #d3d3d3;
-            margin: 0 auto;
-        }
         .modal {
             display: none;
             position: fixed;
@@ -110,7 +97,6 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgb(0,0,0);
             background-color: rgba(0,0,0,0.4);
             animation: fadeIn 0.5s;
         }
@@ -167,11 +153,71 @@
         .pay-button:hover {
             background-color: #45a049;
         }
+
+        /* Media Queries for Responsiveness */
+        @media (max-width: 1200px) {
+            .shop-item {
+                width: 180px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .shop-details {
+                flex-direction: column;
+                text-align: center;
+            }
+            .shop-item {
+                width: 150px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .shop-details {
+                padding: 5px;
+            }
+            .title {
+                font-size: 36px;
+            }
+            .shop-container {
+                gap: 10px;
+            }
+            .shop-item {
+                width: 140px;
+            }
+            .modal-content {
+                width: 90%;
+                flex-direction: column;
+            }
+            .modal-content img, .modal-details {
+                width: 100%;
+                padding: 0;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .title {
+                font-size: 28px;
+            }
+            .shop-item {
+                width: 120px;
+            }
+            .pagination .arrow {
+                font-size: 18px;
+                padding: 5px;
+            }
+            .shop-details div {
+                margin: 5px 0;
+            }
+            .pay-button {
+                width: 100%;
+                text-align: center;
+            }
+        }
   </style>
  </head>
  <body>
   
-  <!-- New Shop Details Section -->
+  <!-- Shop Details Section -->
   <div class="shop-details">
     <div><strong>Shop Name:</strong> Book Haven</div>
     <div><strong>Contact:</strong> +123 456 789</div>
@@ -185,71 +231,47 @@
    <div></div>
   </div>
 
-  <div class="title">
-   shop
-  </div>
+  <div class="title">Shop</div>
+
   <div class="shop-container">
    <div class="shop-item" onclick="openModal('Mtama Road', 'Linda Musita', 'KES 1,800', 'https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg')">
-    <img alt="Black and white image of ocean waves" height="300" src="https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg" width="200"/>
-    <p class="title">
-     Mtama Road
-    </p>
-    <p class="author">
-     Linda Musita
-    </p>
-    <p class="price">
-     KES 1,800
-    </p>
+    <img alt="Mtama Road" src="https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg"/>
+    <p class="title">Mtama Road</p>
+    <p class="author">Linda Musita</p>
+    <p class="price">KES 1,800</p>
    </div>
    <div class="shop-item" onclick="openModal('A History of My Brief Body', 'Billy-Ray Belcourt', 'KES 1,800', 'https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg')">
-    <img alt="Black and white image of ocean waves" height="300" src="https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg" width="200"/>
-    <p class="title">
-     A History of My Brief Body
-    </p>
-    <p class="author">
-     Billy-Ray Belcourt
-    </p>
-    <p class="price">
-     KES 1,800
-    </p>
+    <img alt="A History of My Brief Body" src="https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg"/>
+    <p class="title">A History of My Brief Body</p>
+    <p class="author">Billy-Ray Belcourt</p>
+    <p class="price">KES 1,800</p>
    </div>
    <div class="shop-item" onclick="openModal('Making Home', 'Ophelia Akanjo', 'KES 2,500', 'https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg')">
-    <img alt="Black and white image of ocean waves" height="300" src="https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg" width="200"/>
-    <p class="title">
-     Making Home
-    </p>
-    <p class="author">
-     Ophelia Akanjo
-    </p>
-    <p class="price">
-     KES 2,500
-    </p>
+    <img alt="Making Home" src="https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg"/>
+    <p class="title">Making Home</p>
+    <p class="author">Ophelia Akanjo</p>
+    <p class="price">KES 2,500</p>
    </div>
    <div class="shop-item" onclick="openModal('The Lesser Man', 'Tristan Marajh', 'KES 1,800', 'https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg')">
-    <img alt="Black and white image of ocean waves" height="300" src="https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg" width="200"/>
-    <p class="title">
-     The Lesser Man
-    </p>
-    <p class="author">
-     Tristan Marajh
-    </p>
-    <p class="price">
-     KES 1,800
-    </p>
+    <img alt="The Lesser Man" src="https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg"/>
+    <p class="title">The Lesser Man</p>
+    <p class="author">Tristan Marajh</p>
+    <p class="price">KES 1,800</p>
    </div>
   </div>
+
   <div class="pagination">
-   <div class="arrow">
-    <i class="fas fa-arrow-right"></i>
-   </div>
+   <div class="arrow"><i class="fas fa-arrow-right"></i></div>
   </div>
+
   <div class="footer">
    <div></div>
   </div>
+
   <div class="modal" id="myModal">
    <div class="modal-content">
     <span class="close" onclick="closeModal()">&times;</span>
-    <img alt="Expanded view of the selected item" id="modalImage" src=""/>
+    <img id="modalImage" src=""/>
     <div class="modal-details">
      <h2 id="modalTitle"></h2>
      <p id="modalAuthor"></p>
@@ -260,6 +282,7 @@
     </div>
    </div>
   </div>
+
   <script>
    function openModal(title, author, price, imageUrl) {
         document.getElementById('modalTitle').innerText = title;
