@@ -18,7 +18,7 @@ service = APIService(token=TOKEN, publishable_key=PUBLISHABLE_KEY, test=True)  #
 # Route to display the shop page
 @app.route('/')
 def shop():
-    return render_template('Shop.html')
+    return render_template('shop.html')
 
 # Route to display the payment form
 @app.route('/payment_form')
@@ -34,7 +34,6 @@ def validate_email(email):
 @app.route('/pay', methods=['POST'])
 def initiate_stk_push():
     try:
-        # Collect data from the form
         phone_number = request.form['phone_number']
         email = request.form['email']
         amount = float(request.form['amount'])  # Convert amount to float
@@ -51,9 +50,9 @@ def initiate_stk_push():
             abort(400, description="Invalid email address.")
 
         narrative = "Purchase"
+        logging.info(f"Initiating STK Push for phone: {phone_number}, email: {email}, amount: {amount}")
 
         # Send the STK Push request using IntaSend
-        logging.info(f"Initiating STK Push for phone: {phone_number}, email: {email}, amount: {amount}")
         response = service.collect.mpesa_stk_push(
             phone_number=phone_number,
             email=email,
@@ -61,11 +60,11 @@ def initiate_stk_push():
             narrative=narrative
         )
 
-        # Log the STK Push response
+        # Log the STK Push response in detail
         logging.info(f"Full STK Push response: {response}")
 
         # Check if the STK Push was successful
-        if response.get("success") == True:
+        if response.get("success"):
             transaction_id = response.get("transaction_id")
             logging.info(f"Transaction ID: {transaction_id}")
 
@@ -73,7 +72,6 @@ def initiate_stk_push():
                 logging.warning("Transaction ID is missing in response: %s", response)
                 return redirect(url_for('payment_failure'))
 
-            # Check the status of the transaction
             status_response = service.collect.check_transaction_status(transaction_id)
             logging.info(f"Transaction status response: {status_response}")
 
@@ -89,17 +87,13 @@ def initiate_stk_push():
                 logging.info(f"Transaction is complete for transaction ID: {transaction_id}")
                 return redirect(url_for('payment_success'))
             else:
-                # Log any unrecognized or failed transaction states
                 logging.warning(f"Transaction failed or unknown state: {transaction_state}, response: {status_response}")
                 return redirect(url_for('payment_failure'))
-
         else:
-            # Log and handle failures in STK push initiation
             logging.warning(f"STK Push failed. Full response: {response}")
             return redirect(url_for('payment_failure'))
 
     except Exception as e:
-        # Log the exact exception for easier debugging
         logging.error(f"Error occurred during payment processing: {str(e)}")
         return jsonify({"error": "An error occurred", "message": str(e)}), 500
 
