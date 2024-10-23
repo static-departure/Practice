@@ -116,10 +116,10 @@ def check_payment_status(transaction_id):
 def success():
     return render_template('success.html', message="Payment Successful! Thank you for your purchase.")
 
-# Failure route in case of payment failure
+# Failure route in case of payment failure or cancellation
 @app.route('/pay/failure')
 def failure():
-    return render_template('failure.html', message="Payment Failed. Please try again or contact support.")
+    return render_template('failure.html', message="Payment Failed or Cancelled. Please try again or contact support.")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=True)
