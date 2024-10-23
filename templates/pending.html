@@ -1,15 +1,58 @@
-<!-- pending.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment Pending</title>
-    <!-- Auto-refresh the page every 5 seconds -->
-    <meta http-equiv="refresh" content="5">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        .loader {
+            border: 16px solid #f3f3f3; /* Light grey */
+            border-top: 16px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 1.5em;
+        }
+    </style>
 </head>
 <body>
-    <h1>{{ message }}</h1>
-    <p>Your payment is currently pending. Please confirm the transaction on your phone.</p>
+
+<div>
+    <div class="loader"></div>
+    <div class="message">Payment is Pending. Please wait...</div>
+</div>
+
+<script>
+    // Simulate payment processing time (replace this with actual checking logic)
+    setTimeout(() => {
+        // Here you would check the payment status from your backend if needed.
+        
+        // For demonstration purposes, we will randomly decide success or failure.
+        const paymentSuccess = Math.random() >= 0.5; // Simulating success or failure randomly
+        
+        if (paymentSuccess) {
+            window.location.href = "{{ url_for('success') }}";
+        } else {
+            window.location.href = "{{ url_for('failure') }}";
+        }
+    }, 5000); // Wait for 5 seconds before redirecting (adjust as needed)
+</script>
+
 </body>
 </html>
