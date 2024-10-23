@@ -78,7 +78,7 @@ def initiate_stk_push():
             logging.info(f"Transaction State: {transaction_state}, Success: {success_flag}")
 
             # Handle PENDING status based on JSON response
-            if transaction_state == 'PENDING' or status_response.get('status') == "PENDING":
+            if transaction_state == 'PENDING' or status_response.get('ResponseCode') == "1":
                 logging.info(f"Transaction is pending for transaction ID: {transaction_id}")
                 return redirect(url_for('pending', transaction_id=transaction_id))
             
