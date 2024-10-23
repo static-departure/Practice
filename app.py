@@ -60,6 +60,7 @@ def initiate_stk_push():
 
         logging.info(f"Full STK Push response: {response}")
 
+        # Check if response indicates a pending state
         if response.get("success") == True:
             transaction_id = response.get("transaction_id")
             logging.info(f"Transaction ID: {transaction_id}")
@@ -77,8 +78,8 @@ def initiate_stk_push():
 
             logging.info(f"Transaction State: {transaction_state}, Success: {success_flag}")
 
-            # Handle PENDING status based on JSON response
-            if transaction_state == 'PENDING' or status_response.get('ResponseCode') == "1":
+            # Handle PENDING status based on invoice state
+            if transaction_state == 'PENDING' or status_response.get('invoice', {}).get('state') == 'PENDING':
                 logging.info(f"Transaction is pending for transaction ID: {transaction_id}")
                 return redirect(url_for('pending', transaction_id=transaction_id))
             
@@ -92,6 +93,11 @@ def initiate_stk_push():
                 return redirect(url_for('failure'))
 
         else:
+            # Check for pending state even if success is false
+            if response.get('invoice', {}).get('state') == 'PENDING':
+                logging.info(f"STK Push initiated but invoice is pending: {response}")
+                return redirect(url_for('pending', transaction_id=response['invoice']['invoice_id']))
+            
             logging.warning(f"STK Push failed: {response}")
             return redirect(url_for('failure'))
 
