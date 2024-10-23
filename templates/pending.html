@@ -47,7 +47,7 @@
 <script>
     const transactionId = "{{ transaction_id }}"; // Get transaction ID from Flask context
 
-    // Function to check payment status periodically
+    // Function to check payment status continuously
     function checkPaymentStatus() {
         fetch(`/check_payment_status/${transactionId}`)
             .then(response => response.json())
@@ -57,8 +57,8 @@
                     if (data.state === 'COMPLETE' || data.ResponseCode === "0") {
                         window.location.href = "{{ url_for('success') }}";
                     } else {
-                        // Still pending, check again after some time
-                        setTimeout(checkPaymentStatus, 5000); // Check again after 5 seconds
+                        // Still pending, check again immediately
+                        checkPaymentStatus(); // Call again without delay
                     }
                 } else {
                     // Payment failed or unknown state; handle accordingly.
