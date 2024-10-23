@@ -69,29 +69,9 @@ def initiate_stk_push():
                 logging.warning("Transaction ID is missing in response: %s", response)
                 return redirect(url_for('failure'))
 
-            # Here, we use the transaction_id to check the status of the payment
-            status_response = service.collect.check_transaction_status(transaction_id)
-            logging.info(f"Transaction status response: {status_response}")
-
-            transaction_state = status_response.get('state')
-            success_flag = status_response.get("success")
-
-            logging.info(f"Transaction State: {transaction_state}, Success: {success_flag}")
-
-            # Handle PENDING status based on invoice state
-            if transaction_state == 'PENDING' or status_response.get('invoice', {}).get('state') == 'PENDING':
-                logging.info(f"Transaction is pending for transaction ID: {transaction_id}")
-                return redirect(url_for('pending', transaction_id=transaction_id))
-            
-            # Handle SUCCESS status based on JSON response
-            elif transaction_state == 'COMPLETE' or status_response.get("ResponseCode") == "0":
-                logging.info(f"Transaction is complete for transaction ID: {transaction_id}")
-                return redirect(url_for('success'))
-            
-            else:
-                logging.warning(f"Transaction failed or unknown state: {transaction_state}")
-                return redirect(url_for('failure'))
-
+            # Redirect to pending page with transaction_id
+            return redirect(url_for('pending', transaction_id=transaction_id))
+        
         else:
             # Check for pending state even if success is false
             if response.get('invoice', {}).get('state') == 'PENDING':
@@ -110,6 +90,26 @@ def initiate_stk_push():
 def pending():
     transaction_id = request.args.get('transaction_id')
     return render_template('pending.html', transaction_id=transaction_id)
+
+# Route to check payment status
+@app.route('/check_payment_status/<transaction_id>')
+def check_payment_status(transaction_id):
+    try:
+        # Call IntaSend API to check payment status using the transaction_id
+        status_response = service.collect.check_transaction_status(transaction_id)
+        
+        # Log and return the relevant information
+        logging.info(f"Checked status for transaction ID {transaction_id}: {status_response}")
+        
+        return jsonify({
+            "success": status_response.get("success"),
+            "state": status_response.get("state"),
+            "ResponseCode": status_response.get("ResponseCode"),
+        })
+    
+    except Exception as e:
+        logging.error(f"Error checking payment status for transaction ID {transaction_id}: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
 
 # Success route after payment is complete
 @app.route('/pay/success')
