@@ -109,7 +109,7 @@ def initiate_stk_push():
 @app.route('/pay/pending')
 def pending():
     transaction_id = request.args.get('transaction_id')
-    return render_template('pending.html', message="Payment is Pending. Please complete the transaction.", transaction_id=transaction_id)
+    return render_template('pending.html', transaction_id=transaction_id)
 
 # Success route after payment is complete
 @app.route('/pay/success')
