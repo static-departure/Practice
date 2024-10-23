@@ -68,6 +68,7 @@ def initiate_stk_push():
                 logging.warning("Transaction ID is missing in response: %s", response)
                 return redirect(url_for('failure'))
 
+            # Here, we use the transaction_id to check the status of the payment
             status_response = service.collect.check_transaction_status(transaction_id)
             logging.info(f"Transaction status response: {status_response}")
 
@@ -76,12 +77,16 @@ def initiate_stk_push():
 
             logging.info(f"Transaction State: {transaction_state}, Success: {success_flag}")
 
-            if transaction_state == 'PENDING':
+            # Handle PENDING status based on JSON response
+            if transaction_state == 'PENDING' or status_response.get('status') == "PENDING":
                 logging.info(f"Transaction is pending for transaction ID: {transaction_id}")
                 return redirect(url_for('pending', transaction_id=transaction_id))
-            elif transaction_state == 'COMPLETE':
+            
+            # Handle SUCCESS status based on JSON response
+            elif transaction_state == 'COMPLETE' or status_response.get("ResponseCode") == "0":
                 logging.info(f"Transaction is complete for transaction ID: {transaction_id}")
                 return redirect(url_for('success'))
+            
             else:
                 logging.warning(f"Transaction failed or unknown state: {transaction_state}")
                 return redirect(url_for('failure'))
