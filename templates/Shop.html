@@ -1,20 +1,21 @@
-<html>
- <head>
-  <title>Shop</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>  
-  <style>
-   body {
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>  
+    <style>
+        body {
             font-family: 'Times New Roman', Times, serif;
             margin: 0;
             padding: 0;
             background-color: white;
         }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
+        .header, .footer {
             background-color: #f0f0f0;
+            padding: 20px;
+            text-align: center;
         }
         .shop-details {
             display: flex;
@@ -37,7 +38,7 @@
         .shop-container {
             display: flex;
             flex-wrap: wrap;
-            justify-content: center;
+            justify-content: center; /* Center items */
             gap: 20px;
             padding: 20px;
         }
@@ -53,7 +54,7 @@
             transform: scale(1.05);
         }
         .shop-item img {
-            width: 100%;
+            width: 100%; /* Maintain image size */
             height: auto;
         }
         .shop-item p {
@@ -83,11 +84,6 @@
             border: 1px solid #d3d3d3;
             cursor: pointer;
         }
-        .footer {
-            background-color: black;
-            padding: 20px;
-            text-align: center;
-        }
         .modal {
             display: none;
             position: fixed;
@@ -98,11 +94,6 @@
             height: 100%;
             overflow: auto;
             background-color: rgba(0,0,0,0.4);
-            animation: fadeIn 0.5s;
-        }
-        @keyframes fadeIn {
-            from {opacity: 0;}
-            to {opacity: 1;}
         }
         .modal-content {
             background-color: #fefefe;
@@ -113,11 +104,6 @@
             max-width: 600px;
             display: flex;
             align-items: center;
-            animation: slideIn 0.5s;
-        }
-        @keyframes slideIn {
-            from {transform: translateY(-50px);}
-            to {transform: translateY(0);}
         }
         .modal-content img {
             width: 50%;
@@ -153,138 +139,91 @@
         .pay-button:hover {
             background-color: #45a049;
         }
-
-        /* Media Queries for Responsiveness */
-        @media (max-width: 1200px) {
-            .shop-item {
-                width: 180px;
-            }
-        }
-
-        @media (max-width: 992px) {
-            .shop-details {
-                flex-direction: column;
-                text-align: center;
-            }
-            .shop-item {
-                width: 150px;
-            }
-        }
-
         @media (max-width: 768px) {
-            .shop-details {
-                padding: 5px;
-            }
-            .title {
-                font-size: 36px;
-            }
             .shop-container {
-                gap: 10px;
+                flex-direction: column; /* Change to vertical layout */
+                overflow-x: hidden; /* Disable horizontal scroll */
+                padding: 0; /* Remove padding for mobile */
             }
             .shop-item {
-                width: 140px;
+                width: 100%; /* Make items take full width */
+                margin-bottom: 20px; /* Add space between items */
             }
-            .modal-content {
-                width: 90%;
-                flex-direction: column;
-            }
-            .modal-content img, .modal-details {
-                width: 100%;
-                padding: 0;
+            .shop-item img {
+                width: 80%; /* Set image width to 80% of the parent */
+                height: auto; /* Maintain aspect ratio */
+                object-fit: cover; /* Cover the area without distortion */
             }
         }
+    </style>
+</head>
+<body>
 
-        @media (max-width: 576px) {
-            .title {
-                font-size: 28px;
-            }
-            .shop-item {
-                width: 120px;
-            }
-            .pagination .arrow {
-                font-size: 18px;
-                padding: 5px;
-            }
-            .shop-details div {
-                margin: 5px 0;
-            }
-            .pay-button {
-                width: 100%;
-                text-align: center;
-            }
-        }
-  </style>
- </head>
- <body>
-  
-  <!-- Shop Details Section -->
-  <div class="shop-details">
-    <div><strong>Shop Name:</strong> Book Haven</div>
-    <div><strong>Contact:</strong> +123 456 789</div>
-    <div><strong>Email:</strong> support@bookhaven.com</div>
-    <div><strong>Hours:</strong> Mon-Fri 9am-5pm</div>
-  </div>
-
-  <div class="header">
-   <div></div>
-   <div></div>
-   <div></div>
-  </div>
-
-  <div class="title">Shop</div>
-
-  <div class="shop-container">
-   <div class="shop-item" onclick="openModal('Mtama Road', 'Linda Musita', 'KES 1,800', 'https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg')">
-    <img alt="Mtama Road" src="https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg"/>
-    <p class="title">Mtama Road</p>
-    <p class="author">Linda Musita</p>
-    <p class="price">KES 1,800</p>
-   </div>
-   <div class="shop-item" onclick="openModal('A History of My Brief Body', 'Billy-Ray Belcourt', 'KES 1,800', 'https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg')">
-    <img alt="A History of My Brief Body" src="https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg"/>
-    <p class="title">A History of My Brief Body</p>
-    <p class="author">Billy-Ray Belcourt</p>
-    <p class="price">KES 1,800</p>
-   </div>
-   <div class="shop-item" onclick="openModal('Making Home', 'Ophelia Akanjo', 'KES 2,500', 'https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg')">
-    <img alt="Making Home" src="https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg"/>
-    <p class="title">Making Home</p>
-    <p class="author">Ophelia Akanjo</p>
-    <p class="price">KES 2,500</p>
-   </div>
-   <div class="shop-item" onclick="openModal('The Lesser Man', 'Tristan Marajh', 'KES 1,800', 'https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg')">
-    <img alt="The Lesser Man" src="https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg"/>
-    <p class="title">The Lesser Man</p>
-    <p class="author">Tristan Marajh</p>
-    <p class="price">KES 1,800</p>
-   </div>
-  </div>
-
-  <div class="pagination">
-   <div class="arrow"><i class="fas fa-arrow-right"></i></div>
-  </div>
-
-  <div class="footer">
-   <div></div>
-  </div>
-
-  <div class="modal" id="myModal">
-   <div class="modal-content">
-    <span class="close" onclick="closeModal()">&times;</span>
-    <img id="modalImage" src=""/>
-    <div class="modal-details">
-     <h2 id="modalTitle"></h2>
-     <p id="modalAuthor"></p>
-     <p id="modalPrice"></p>
-     <button class="pay-button">
-        <a href="{{ url_for('payment_form') }}" target="_blank">Pay</a>
-     </button>
+    <div class="shop-details">
+        <div><strong>Shop Name:</strong> Book Haven</div>
+        <div><strong>Contact:</strong> +123 456 789</div>
+        <div><strong>Email:</strong> support@bookhaven.com</div>
+        <div><strong>Hours:</strong> Mon-Fri 9am-5pm</div>
     </div>
-   </div>
-  </div>
 
-  <script>
-   function openModal(title, author, price, imageUrl) {
+    <div class="header">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+
+    <div class="title">Shop</div>
+
+    <div class="shop-container">
+        <div class="shop-item" onclick="openModal('Mtama Road', 'Linda Musita', 'KES 1,800', 'https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg')">
+            <img alt="Mtama Road" src="https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg"/>
+            <p class="title">Mtama Road</p>
+            <p class="author">Linda Musita</p>
+            <p class="price">KES 1,800</p>
+        </div>
+        <div class="shop-item" onclick="openModal('A History of My Brief Body', 'Billy-Ray Belcourt', 'KES 1,800', 'https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg')">
+            <img alt="A History of My Brief Body" src="https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg"/>
+            <p class="title">A History of My Brief Body</p>
+            <p class="author">Billy-Ray Belcourt</p>
+            <p class="price">KES 1,800</p>
+        </div>
+        <div class="shop-item" onclick="openModal('Making Home', 'Ophelia Akanjo', 'KES 2,500', 'https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg')">
+            <img alt="Making Home" src="https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg"/>
+            <p class="title">Making Home</p>
+            <p class="author">Ophelia Akanjo</p>
+            <p class="price">KES 2,500</p>
+        </div>
+        <div class="shop-item" onclick="openModal('The Lesser Man', 'Tristan Marajh', 'KES 1,800', 'https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg')">
+            <img alt="The Lesser Man" src="https://storage.googleapis.com/a1aa/image/S0TUpsZ2ZNIFI1LJAlDs3GqfOw2JQExjcuDx6olZehQZ5uiTA.jpg"/>
+            <p class="title">The Lesser Man</p>
+            <p class="author">Tristan Marajh</p>
+            <p class="price">KES 1,800</p>
+        </div>
+    </div>
+
+    <div class="pagination">
+        <div class="arrow"><i class="fas fa-arrow-right"></i></div>
+    </div>
+
+    <div class ="footer">
+        <div>&copy; 2023 Book Haven</div>
+    </div>
+
+    <div class="modal" id="myModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <img id="modalImage" src=""/>
+            <div class="modal-details">
+                <h2 id="modalTitle"></h2>
+                <p id="modalAuthor"></p>
+                <p id="modalPrice"></p>
+                <button class="pay-button"><a href="{{ url_for('payment_form') }}" target="_blank">Pay</a></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal(title, author, price, imageUrl) {
         document.getElementById('modalTitle').innerText = title;
         document.getElementById('modalAuthor').innerText = author;
         document.getElementById('modalPrice').innerText = price;
@@ -301,6 +240,6 @@
             closeModal();
         }
     }
-  </script>
- </body>
+    </script>
+</body>
 </html>
